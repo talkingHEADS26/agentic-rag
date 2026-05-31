@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TalkingHEADS Chat Widget</title>
+<style>
+  /* ── Reset & Base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --th-primary: #1a1a2e;
+    --th-accent: #e94560;
+    --th-accent-dim: rgba(233,69,96,0.12);
+    --th-bg: #ffffff;
+    --th-surface: #f7f7f9;
+    --th-border: #e8e8ef;
+    --th-text: #1a1a2e;
+    --th-muted: #8888a0;
+    --th-radius: 16px;
+    --th-shadow: 0 24px 64px rgba(26,26,46,0.18);
+  }
+
+  body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    background: #f0f0f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+  }
+
+  /* ── Widget Container ── */
+  #th-widget {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    z-index: 9999;
+    font-family: 'DM Sans', system-ui, sans-serif;
+  }
+
+  /* ── Toggle Button ── */
+  #th-toggle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--th-primary);
+    border: none;
+    cursor: pointer;
+    box-shadow: var(--th-shadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease, background 0.2s ease;
+    position: relative;
+  }
+
+  #th-toggle:hover { transform: scale(1.08); background: #16162a; }
+
+  #th-toggle svg { transition: opacity 0.2s, transform 0.2s; }
+  #th-toggle .icon-chat { opacity: 1; transform: scale(1); }
+  #th-toggle .icon-close { opacity: 0; transform: scale(0.6); position: absolute; }
+  #th-toggle.open .icon-chat { opacity: 0; transform: scale(0.6); }
+  #th-toggle.open .icon-close { opacity: 1; transform: scale(1); }
+
+  #th-unread {
+    position: absolute;
+    top: -2px; right: -2px;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--th-accent);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    display: none;
+  }
+  #th-unread.visible { display: flex; }
+
+  /* ── Chat Panel ── */
+  #th-panel {
+    position: absolute;
+    bottom: 72px;
+    right: 0;
+    width: 380px;
+    height: 560px;
+    background: var(--th-bg);
+    border-radius: var(--th-radius);
+    box-shadow: var(--th-shadow);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform: scale(0.9) translateY(20px);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s ease;
+    transform-origin: bottom right;
+  }
+
+  #th-panel.open {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  /* ── Header ── */
+  #th-header {
+    background: var(--th-primary);
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  .th-avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--th-accent);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 16px; color: white;
+    flex-shrink: 0;
+  }
+
+  .th-header-info { flex: 1; }
+  .th-header-name { color: white; font-weight: 600; font-size: 15px; }
+  .th-header-status {
+    color: rgba(255,255,255,0.55);
+    font-size: 12px;
+    display: flex; align-items: center; gap: 5px; margin-top: 2px;
+  }
+  .th-status-dot {
+    width: 7px; height: 7px; border-radius: 50%; background: #4ade80;
+  }
+
+  /* ── Messages ── */
+  #th-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    scroll-behavior: smooth;
+  }
+
+  #th-messages::-webkit-scrollbar { width: 4px; }
+  #th-messages::-webkit-scrollbar-track { background: transparent; }
+  #th-messages::-webkit-scrollbar-thumb { background: var(--th-border); border-radius: 2px; }
+
+  .th-msg {
+    display: flex;
+    flex-direction: column;
+    max-width: 82%;
+    animation: th-pop 0.2s ease;
+  }
+
+  @keyframes th-pop {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .th-msg.bot { align-self: flex-start; }
+  .th-msg.user { align-self: flex-end; }
+
+  .th-bubble {
+    padding: 11px 15px;
+    border-radius: 14px;
+    font-size: 14px;
+    line-height: 1.5;
+    word-break: break-word;
+  }
+
+  .th-msg.bot .th-bubble {
+    background: var(--th-surface);
+    color: var(--th-text);
+    border-bottom-left-radius: 4px;
+  }
+
+  .th-msg.user .th-bubble {
+    background: var(--th-primary);
+    color: white;
+    border-bottom-right-radius: 4px;
+  }
+
+  .th-time {
+    font-size: 11px;
+    color: var(--th-muted);
+    margin-top: 4px;
+    padding: 0 4px;
+  }
+  .th-msg.user .th-time { text-align: right; }
+
+  /* ── Typing Indicator ── */
+  #th-typing {
+    display: none;
+    align-self: flex-start;
+    padding: 10px 14px;
+    background: var(--th-surface);
+    border-radius: 14px;
+    border-bottom-left-radius: 4px;
+  }
+  #th-typing.visible { display: flex; gap: 5px; align-items: center; }
+
+  .th-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--th-muted);
+    animation: th-bounce 1.2s ease infinite;
+  }
+  .th-dot:nth-child(2) { animation-delay: 0.2s; }
+  .th-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes th-bounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-5px); }
+  }
+
+  /* ── Input Area ── */
+  #th-input-area {
+    padding: 14px 16px;
+    border-top: 1px solid var(--th-border);
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    flex-shrink: 0;
+    background: white;
+  }
+
+  #th-input {
+    flex: 1;
+    border: 1.5px solid var(--th-border);
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--th-text);
+    resize: none;
+    max-height: 100px;
+    outline: none;
+    transition: border-color 0.15s;
+    background: var(--th-surface);
+    line-height: 1.4;
+  }
+
+  #th-input:focus { border-color: var(--th-accent); background: white; }
+  #th-input::placeholder { color: var(--th-muted); }
+
+  #th-send {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: var(--th-accent);
+    border: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s, transform 0.1s;
+  }
+  #th-send:hover { background: #c73652; }
+  #th-send:active { transform: scale(0.93); }
+  #th-send:disabled { background: var(--th-border); cursor: not-allowed; }
+
+  /* ── Powered by ── */
+  #th-footer {
+    text-align: center;
+    padding: 6px;
+    font-size: 10px;
+    color: var(--th-muted);
+    border-top: 1px solid var(--th-border);
+    flex-shrink: 0;
+  }
+
+  /* ── Preview Demo Box ── */
+  .demo-wrapper {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 500px;
+    width: 100%;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    text-align: center;
+  }
+  .demo-wrapper h2 { font-size: 20px; color: #1a1a2e; margin-bottom: 8px; }
+  .demo-wrapper p { color: #8888a0; font-size: 14px; }
+  .embed-code {
+    background: #1a1a2e;
+    color: #4ade80;
+    padding: 16px;
+    border-radius: 10px;
+    font-family: monospace;
+    font-size: 12px;
+    text-align: left;
+    margin-top: 20px;
+    white-space: pre;
+  }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- Demo Page Content -->
+<div class="demo-wrapper">
+  <h2>TalkingHEADS Chat Widget</h2>
+  <p>Klick unten rechts auf den Button →</p>
+  <div class="embed-code">&lt;script&gt;
+  window.TH_CHAT_CONFIG = {
+    wsUrl: 'wss://your-server.com/chat',
+    agentName: 'TalkingHEADS Assistent'
+  };
+&lt;/script&gt;
+&lt;script src="https://your-cdn.com/th-widget.js"&gt;&lt;/script&gt;</div>
+</div>
+
+<!-- ══ WIDGET ══════════════════════════════════════════ -->
+<div id="th-widget">
+
+  <div id="th-panel">
+    <div id="th-header">
+      <div class="th-avatar">TH</div>
+      <div class="th-header-info">
+        <div class="th-header-name">TalkingHEADS Assistent</div>
+        <div class="th-header-status">
+          <div class="th-status-dot"></div>
+          Online · Antwortet sofort
+        </div>
+      </div>
+    </div>
+
+    <div id="th-messages">
+      <!-- Nachrichten werden hier dynamisch eingefügt -->
+      <div id="th-typing"></div>
+    </div>
+
+    <div id="th-input-area">
+      <textarea
+        id="th-input"
+        placeholder="Schreib eine Nachricht…"
+        rows="1"
+      ></textarea>
+      <button id="th-send" title="Senden">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div id="th-footer">Powered by TalkingHEADS AI</div>
+  </div>
+
+  <button id="th-toggle" title="Chat öffnen">
+    <svg class="icon-chat" width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <svg class="icon-close" width="22" height="22" viewBox="0 0 24 24" fill="none">
+      <path d="M18 6L6 18M6 6L18 18" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
+    <div id="th-unread"></div>
+  </button>
+
+</div>
+
+<script>
+// ── TalkingHEADS Chat Widget ──────────────────────────────────────────────────
+
+(function() {
+  const CONFIG = window.TH_CHAT_CONFIG || {
+    wsUrl: 'ws://localhost:3000/chat',  // ← Deine Server-URL
+    agentName: 'TalkingHEADS Assistent'
+  };
+
+  // ── State ──
+  let ws = null;
+  let sessionId = localStorage.getItem('th_session') || null;
+  let isOpen = false;
+  let unreadCount = 0;
+  let reconnectTimer = null;
+
+  // ── DOM ──
+  const panel     = document.getElementById('th-panel');
+  const toggle    = document.getElementById('th-toggle');
+  const messages  = document.getElementById('th-messages');
+  const input     = document.getElementById('th-input');
+  const sendBtn   = document.getElementById('th-send');
+  const typing    = document.getElementById('th-typing');
+  const unreadEl  = document.getElementById('th-unread');
+
+  // Typing indicator HTML
+  typing.innerHTML = '<div class="th-dot"></div><div class="th-dot"></div><div class="th-dot"></div>';
+
+  // ── WebSocket ──
+  function connect() {
+    const url = sessionId
+      ? `${CONFIG.wsUrl}?session=${sessionId}`
+      : CONFIG.wsUrl;
+
+    ws = new WebSocket(url);
+
+    ws.onopen = () => {
+      console.log('[TH Chat] Connected');
+      clearTimeout(reconnectTimer);
+      if (messages.children.length === 0) {
+        addBotMessage('👋 Hallo! Wie kann ich dir helfen?');
+      }
+    };
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+
+      switch(data.type) {
+        case 'connected':
+          sessionId = data.sessionId;
+          localStorage.setItem('th_session', sessionId);
+          break;
+        case 'typing':
+          setTyping(data.status);
+          break;
+        case 'message':
+          setTyping(false);
+          addBotMessage(data.content);
+          if (!isOpen) showUnread();
+          break;
+        case 'error':
+          setTyping(false);
+          addBotMessage('❌ ' + data.message);
+          break;
+      }
+    };
+
+    ws.onclose = () => {
+      console.log('[TH Chat] Disconnected, reconnecting in 3s...');
+      reconnectTimer = setTimeout(connect, 3000);
+    };
+
+    ws.onerror = (err) => {
+      console.error('[TH Chat] WebSocket error:', err);
+    };
+  }
+
+  // ── UI Helpers ──
+  function formatTime() {
+    return new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function addMessage(content, type) {
+    const wrapper = document.createElement('div');
+    wrapper.className = `th-msg ${type}`;
+
+    const bubble = document.createElement('div');
+    bubble.className = 'th-bubble';
+
+    // Einfaches Markdown: Bold, Code
+    bubble.innerHTML = content
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/`(.*?)`/g, '<code>$1</code>')
+      .replace(/\n/g, '<br>');
+
+    const time = document.createElement('div');
+    time.className = 'th-time';
+    time.textContent = formatTime();
+
+    wrapper.appendChild(bubble);
+    wrapper.appendChild(time);
+    messages.appendChild(wrapper);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  function addBotMessage(content) { addMessage(content, 'bot'); }
+  function addUserMessage(content) { addMessage(content, 'user'); }
+
+  function setTyping(show) {
+    if (show) {
+      messages.appendChild(typing);
+      typing.classList.add('visible');
+      messages.scrollTop = messages.scrollHeight;
+    } else {
+      typing.classList.remove('visible');
+      if (typing.parentNode) typing.parentNode.removeChild(typing);
+    }
+  }
+
+  function showUnread() {
+    unreadCount++;
+    unreadEl.textContent = unreadCount;
+    unreadEl.classList.add('visible');
+  }
+
+  function clearUnread() {
+    unreadCount = 0;
+    unreadEl.classList.remove('visible');
+  }
+
+  // ── Send ──
+  function sendMessage() {
+    const text = input.value.trim();
+    if (!text || !ws || ws.readyState !== WebSocket.OPEN) return;
+
+    addUserMessage(text);
+    ws.send(JSON.stringify({ message: text }));
+    input.value = '';
+    input.style.height = 'auto';
+    sendBtn.disabled = true;
+    setTimeout(() => sendBtn.disabled = false, 500);
+  }
+
+  // ── Auto-resize Textarea ──
+  input.addEventListener('input', () => {
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 100) + 'px';
+  });
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  sendBtn.addEventListener('click', sendMessage);
+
+  // ── Toggle ──
+  toggle.addEventListener('click', () => {
+    isOpen = !isOpen;
+    panel.classList.toggle('open', isOpen);
+    toggle.classList.toggle('open', isOpen);
+    if (isOpen) {
+      clearUnread();
+      input.focus();
+    }
+  });
+
+  // ── Init ──
+  connect();
+
+})();
+</script>
+</body>
+</html>

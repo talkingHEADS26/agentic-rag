@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TalkingHEADS — Knowledge Upload</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary: #1a1a2e;
+    --accent:  #e94560;
+    --accent-dim: rgba(233,69,96,0.1);
+    --green:   #4ade80;
+    --green-dim: rgba(74,222,128,0.1);
+    --yellow:  #fbbf24;
+    --bg:      #f0f0f5;
+    --surface: #ffffff;
+    --border:  #e8e8ef;
+    --muted:   #8888a0;
+    --text:    #1a1a2e;
+    --radius:  14px;
+    --shadow:  0 4px 24px rgba(26,26,46,0.10);
+  }
+
+  body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    color: var(--text);
+  }
+
+  /* ── LOGIN OVERLAY ── */
+  #login-overlay {
+    position: fixed; inset: 0;
+    background: var(--primary);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100;
+    transition: opacity 0.3s;
+  }
+  #login-overlay.hidden { opacity: 0; pointer-events: none; }
+
+  .login-box {
+    background: #22223a;
+    border-radius: 20px;
+    padding: 40px;
+    width: 360px;
+    text-align: center;
+  }
+  .login-box .logo {
+    font-size: 28px; font-weight: 700; color: white; margin-bottom: 4px;
+  }
+  .login-box .logo span { color: var(--accent); }
+  .login-box .subtitle {
+    color: rgba(255,255,255,0.4); font-size: 13px; margin-bottom: 32px;
+  }
+  .login-box input {
+    width: 100%;
+    background: rgba(255,255,255,0.07);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 13px 16px;
+    color: white;
+    font-family: inherit;
+    font-size: 15px;
+    outline: none;
+    margin-bottom: 14px;
+    transition: border-color 0.15s;
+  }
+  .login-box input:focus { border-color: var(--accent); }
+  .login-box input::placeholder { color: rgba(255,255,255,0.25); }
+  .login-box button {
+    width: 100%;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 13px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .login-box button:hover { background: #c73652; }
+  #login-error {
+    color: var(--accent);
+    font-size: 13px;
+    margin-top: 12px;
+    min-height: 20px;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  header {
+    background: var(--primary);
+    padding: 18px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .header-logo { font-size: 18px; font-weight: 700; color: white; }
+  .header-logo span { color: var(--accent); }
+  .header-badge {
+    background: rgba(233,69,96,0.15);
+    color: var(--accent);
+    border: 1px solid rgba(233,69,96,0.3);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 32px 20px;
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 24px;
+  }
+
+  @media (max-width: 700px) {
+    main { grid-template-columns: 1fr; }
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 24px;
+  }
+  .card-title {
+    font-size: 16px; font-weight: 700;
+    margin-bottom: 18px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card-title .icon {
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+  }
+  .card-title .icon.blue { background: #e0e7ff; }
+  .card-title .icon.green { background: var(--green-dim); }
+
+  /* ── DRAG & DROP ── */
+  #dropzone {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 36px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+  }
+  #dropzone:hover, #dropzone.dragover {
+    border-color: var(--accent);
+    background: var(--accent-dim);
+  }
+  #dropzone input[type=file] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer;
+  }
+  #dropzone .drop-icon { font-size: 36px; margin-bottom: 10px; }
+  #dropzone .drop-title { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+  #dropzone .drop-sub { color: var(--muted); font-size: 13px; }
+
+  /* ── FORM FIELDS ── */
+  .field { margin-top: 16px; }
+  .field label {
+    display: block;
+    font-size: 13px; font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .field select, .field input[type=text] {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 11px 14px;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--text);
+    background: #fafafa;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .field select:focus, .field input[type=text]:focus { border-color: var(--accent); }
+
+  /* ── FILE QUEUE ── */
+  #file-queue { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+
+  .file-item {
+    background: #fafafa;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .file-item .file-icon { font-size: 20px; flex-shrink: 0; }
+  .file-item .file-info { flex: 1; min-width: 0; }
+  .file-item .file-name {
+    font-size: 14px; font-weight: 600;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .file-item .file-size { font-size: 12px; color: var(--muted); }
+  .file-item .file-remove {
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); font-size: 18px; line-height: 1;
+    padding: 2px 6px; border-radius: 6px;
+    transition: color 0.15s, background 0.15s;
+  }
+  .file-item .file-remove:hover { color: var(--accent); background: var(--accent-dim); }
+
+  /* ── PROGRESS ── */
+  .progress-wrap {
+    margin-top: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    height: 5px;
+    overflow: hidden;
+    display: none;
+  }
+  .progress-wrap.visible { display: block; }
+  .progress-bar {
+    height: 100%; border-radius: 4px;
+    background: linear-gradient(90deg, var(--accent), #f87171);
+    transition: width 0.3s ease;
+    width: 0%;
+  }
+  .progress-bar.done { background: var(--green); }
+
+  /* ── SUBMIT BUTTON ── */
+  #upload-btn {
+    width: 100%; margin-top: 20px;
+    background: var(--primary);
+    color: white;
+    border: none; border-radius: 10px;
+    padding: 14px;
+    font-family: inherit; font-size: 15px; font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  #upload-btn:hover:not(:disabled) { background: #0f0f1e; }
+  #upload-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ── TOAST LOG ── */
+  #log {
+    margin-top: 20px;
+    display: flex; flex-direction: column; gap: 8px;
+    max-height: 260px; overflow-y: auto;
+  }
+  .log-item {
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    display: flex; align-items: flex-start; gap: 8px;
+    animation: fadeIn 0.2s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; } }
+  .log-item.success { background: var(--green-dim); color: #166534; }
+  .log-item.error   { background: var(--accent-dim); color: #991b1b; }
+  .log-item.info    { background: #eff6ff; color: #1e40af; }
+  .log-item .log-icon { flex-shrink: 0; }
+
+  /* ── STATS PANEL ── */
+  .stats-grid { display: flex; flex-direction: column; gap: 8px; }
+  .stat-row {
+    background: #fafafa;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .stat-left .stat-source { font-size: 14px; font-weight: 600; }
+  .stat-left .stat-cat {
+    display: inline-block;
+    font-size: 11px; font-weight: 600;
+    background: var(--accent-dim);
+    color: var(--accent);
+    border-radius: 5px;
+    padding: 2px 7px;
+    margin-top: 3px;
+    text-transform: uppercase;
+  }
+  .stat-count {
+    font-size: 22px; font-weight: 700;
+    color: var(--primary);
+  }
+  .stat-count small { font-size: 11px; font-weight: 400; color: var(--muted); display: block; text-align: right; }
+
+  .stats-empty {
+    text-align: center; color: var(--muted);
+    font-size: 14px; padding: 24px;
+  }
+
+  #refresh-stats {
+    background: none; border: 1.5px solid var(--border);
+    border-radius: 8px; padding: 6px 12px;
+    font-family: inherit; font-size: 13px;
+    cursor: pointer; color: var(--muted);
+    transition: all 0.15s;
+    margin-left: auto; display: block; margin-bottom: 14px;
+  }
+  #refresh-stats:hover { border-color: var(--accent); color: var(--accent); }
+
+  .total-badge {
+    background: var(--primary); color: white;
+    border-radius: 8px; padding: 12px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+    font-size: 14px;
+  }
+  .total-badge strong { font-size: 20px; }
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN ── -->
+<div id="login-overlay">
+  <div class="login-box">
+    <div class="logo">Talking<span>HEADS</span></div>
+    <div class="subtitle">Knowledge Admin</div>
+    <input type="password" id="pw-input" placeholder="Passwort eingeben…" autocomplete="current-password">
+    <button onclick="doLogin()">Einloggen</button>
+    <div id="login-error"></div>
+  </div>
+</div>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="header-logo">Talking<span>HEADS</span></div>
+  <div class="header-badge">Knowledge Admin</div>
+</header>
+
+<!-- ── MAIN ── -->
+<main>
+
+  <!-- LEFT: Upload -->
+  <div>
+    <div class="card">
+      <div class="card-title">
+        <div class="icon blue">📤</div>
+        Dokumente hochladen
+      </div>
+
+      <!-- Drag & Drop -->
+      <div id="dropzone">
+        <input type="file" id="file-input" multiple accept=".txt,.md">
+        <div class="drop-icon">📄</div>
+        <div class="drop-title">Dateien hier ablegen</div>
+        <div class="drop-sub">.txt und .md — mehrere gleichzeitig möglich</div>
+      </div>
+
+      <!-- Category -->
+      <div class="field">
+        <label>Kategorie</label>
+        <select id="category">
+          <option value="general">General</option>
+          <option value="sales">Sales</option>
+          <option value="coaching">Coaching</option>
+          <option value="faq">FAQ</option>
+          <option value="pricing">Preise</option>
+          <option value="team">Team</option>
+        </select>
+      </div>
+
+      <!-- Custom category -->
+      <div class="field">
+        <label>Eigene Kategorie (optional)</label>
+        <input type="text" id="custom-category" placeholder="z.B. onboarding">
+      </div>
+
+      <!-- File queue -->
+      <div id="file-queue"></div>
+
+      <!-- Upload button -->
+      <button id="upload-btn" onclick="uploadAll()" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Hochladen &amp; Ingestieren
+      </button>
+
+      <!-- Log -->
+      <div id="log"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Stats -->
+  <div>
+    <div class="card">
+      <div class="card-title">
+        <div class="icon green">📊</div>
+        Wissensbasis
+      </div>
+
+      <button id="refresh-stats" onclick="loadStats()">↻ Aktualisieren</button>
+
+      <div id="total-wrap" style="display:none">
+        <div class="total-badge">
+          <span>Chunks gesamt</span>
+          <strong id="total-count">0</strong>
+        </div>
+      </div>
+
+      <div class="stats-grid" id="stats-grid">
+        <div class="stats-empty">Lade Statistiken…</div>
+      </div>
+
+      <button id="delete-btn" onclick="deleteAll()" style="
+        width:100%; margin-top:16px;
+        background:none; border:1.5px solid #e94560;
+        border-radius:10px; padding:11px;
+        font-family:inherit; font-size:14px; font-weight:600;
+        color:#e94560; cursor:pointer;
+        transition:background 0.15s, color 0.15s;
+      " onmouseover="this.style.background='#e94560';this.style.color='white'"
+         onmouseout="this.style.background='none';this.style.color='#e94560'">
+        🗑 Gesamte Wissensbasis löschen
+      </button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ── Auth ──────────────────────────────────────────────────────────────────────
+
+let authHeader = sessionStorage.getItem('th_admin_auth') || null;
+
+function doLogin() {
+  const pw = document.getElementById('pw-input').value;
+  if (!pw) return;
+  // Verify against /admin/stats
+  const header = 'Basic ' + btoa('admin:' + pw);
+  fetch('/admin/stats', { headers: { Authorization: header } })
+    .then(r => {
+      if (r.ok) {
+        authHeader = header;
+        sessionStorage.setItem('th_admin_auth', header);
+        document.getElementById('login-overlay').classList.add('hidden');
+        loadStats();
+      } else {
+        document.getElementById('login-error').textContent = 'Falsches Passwort.';
+      }
+    })
+    .catch(() => {
+      document.getElementById('login-error').textContent = 'Verbindungsfehler.';
+    });
+}
+
+document.getElementById('pw-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+// Auto-login if session still valid
+if (authHeader) {
+  fetch('/admin/stats', { headers: { Authorization: authHeader } })
+    .then(r => {
+      if (r.ok) {
+        document.getElementById('login-overlay').classList.add('hidden');
+        loadStats();
+      } else {
+        sessionStorage.removeItem('th_admin_auth');
+        authHeader = null;
+      }
+    });
+}
+
+// ── Drag & Drop ───────────────────────────────────────────────────────────────
+
+const dropzone  = document.getElementById('dropzone');
+const fileInput = document.getElementById('file-input');
+const fileQueue = document.getElementById('file-queue');
+const uploadBtn = document.getElementById('upload-btn');
+
+let pendingFiles = [];
+
+dropzone.addEventListener('dragover', e => {
+  e.preventDefault();
+  dropzone.classList.add('dragover');
+});
+dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+dropzone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropzone.classList.remove('dragover');
+  addFiles(Array.from(e.dataTransfer.files));
+});
+
+fileInput.addEventListener('change', () => {
+  addFiles(Array.from(fileInput.files));
+  fileInput.value = '';
+});
+
+function addFiles(files) {
+  const valid = files.filter(f => f.name.endsWith('.txt') || f.name.endsWith('.md'));
+  if (valid.length < files.length) {
+    addLog('info', `${files.length - valid.length} Datei(en) übersprungen (nur .txt/.md)`);
+  }
+  for (const f of valid) {
+    if (!pendingFiles.find(p => p.name === f.name)) {
+      pendingFiles.push(f);
+    }
+  }
+  renderQueue();
+}
+
+function removeFile(name) {
+  pendingFiles = pendingFiles.filter(f => f.name !== name);
+  renderQueue();
+}
+
+function formatSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+function renderQueue() {
+  fileQueue.innerHTML = '';
+  for (const f of pendingFiles) {
+    const item = document.createElement('div');
+    item.className = 'file-item';
+    item.innerHTML = `
+      <div class="file-icon">${f.name.endsWith('.md') ? '📝' : '📄'}</div>
+      <div class="file-info">
+        <div class="file-name">${f.name}</div>
+        <div class="file-size">${formatSize(f.size)}</div>
+        <div class="progress-wrap" id="progress-${CSS.escape(f.name)}">
+          <div class="progress-bar" id="bar-${CSS.escape(f.name)}"></div>
+        </div>
+      </div>
+      <button class="file-remove" onclick="removeFile('${f.name.replace(/'/g, "\\'")}')" title="Entfernen">×</button>
+    `;
+    fileQueue.appendChild(item);
+  }
+  uploadBtn.disabled = pendingFiles.length === 0;
+}
+
+// ── Upload ────────────────────────────────────────────────────────────────────
+
+async function uploadAll() {
+  if (!pendingFiles.length) return;
+
+  const customCat = document.getElementById('custom-category').value.trim();
+  const category  = customCat || document.getElementById('category').value;
+
+  uploadBtn.disabled = true;
+  uploadBtn.innerHTML = `<span>Wird hochgeladen…</span>`;
+
+  let success = 0;
+  let failed  = 0;
+
+  for (const file of [...pendingFiles]) {
+    const escapedName = CSS.escape(file.name);
+    const progressWrap = document.getElementById(`progress-${escapedName}`);
+    const bar = document.getElementById(`bar-${escapedName}`);
+
+    if (progressWrap) progressWrap.classList.add('visible');
+    if (bar) bar.style.width = '30%';
+
+    try {
+      const content = await readFileText(file);
+      if (bar) bar.style.width = '60%';
+
+      const res = await fetch('/admin/ingest', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': authHeader,
+        },
+        body: JSON.stringify({ content, filename: file.name, category }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.ok) {
+        if (bar) { bar.style.width = '100%'; bar.classList.add('done'); }
+        addLog('success', `✓ ${file.name} — ${data.chunks} Chunks (${category})`);
+        success++;
+        pendingFiles = pendingFiles.filter(f => f.name !== file.name);
+      } else {
+        if (bar) bar.style.width = '100%';
+        addLog('error', `✗ ${file.name}: ${data.error || 'Unbekannter Fehler'}`);
+        failed++;
+      }
+    } catch (err) {
+      addLog('error', `✗ ${file.name}: ${err.message}`);
+      failed++;
+    }
+  }
+
+  renderQueue();
+
+  uploadBtn.innerHTML = `
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Hochladen &amp; Ingestieren
+  `;
+  uploadBtn.disabled = pendingFiles.length === 0;
+
+  if (success > 0) {
+    addLog('info', `${success} Datei(en) erfolgreich ingestiert.`);
+    loadStats();
+  }
+}
+
+function readFileText(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload  = e => resolve(e.target.result);
+    reader.onerror = () => reject(new Error('Lesefehler'));
+    reader.readAsText(file, 'utf-8');
+  });
+}
+
+// ── Log ───────────────────────────────────────────────────────────────────────
+
+function addLog(type, msg) {
+  const log  = document.getElementById('log');
+  const item = document.createElement('div');
+  item.className = `log-item ${type}`;
+  const icons = { success: '✓', error: '✗', info: 'ℹ' };
+  item.innerHTML = `<span class="log-icon">${icons[type]}</span><span>${msg}</span>`;
+  log.prepend(item);
+}
+
+// ── Stats ─────────────────────────────────────────────────────────────────────
+
+async function deleteAll() {
+  if (!confirm('⚠️ Gesamte Wissensbasis löschen?\n\nAlle Chunks werden unwiderruflich entfernt.')) return;
+  const btn = document.getElementById('delete-btn');
+  btn.textContent = 'Lösche…';
+  btn.disabled = true;
+  try {
+    const res = await fetch('/admin/chunks', {
+      method: 'DELETE',
+      headers: { Authorization: authHeader },
+    });
+    const data = await res.json();
+    if (data.ok) {
+      addLog('success', '✓ Wissensbasis vollständig gelöscht.');
+      loadStats();
+    } else {
+      addLog('error', `✗ Fehler: ${data.error}`);
+    }
+  } catch (err) {
+    addLog('error', `✗ ${err.message}`);
+  } finally {
+    btn.textContent = '🗑 Gesamte Wissensbasis löschen';
+    btn.disabled = false;
+  }
+}
+
+async function loadStats() {
+  const grid = document.getElementById('stats-grid');
+  grid.innerHTML = '<div class="stats-empty">Lade…</div>';
+
+  try {
+    const res  = await fetch('/admin/stats', { headers: { Authorization: authHeader } });
+    const data = await res.json();
+
+    if (!data.ok || !data.stats.length) {
+      grid.innerHTML = '<div class="stats-empty">Noch keine Dokumente in der Wissensbasis.</div>';
+      document.getElementById('total-wrap').style.display = 'none';
+      return;
+    }
+
+    const total = data.stats.reduce((s, r) => s + r.count, 0);
+    document.getElementById('total-count').textContent = total;
+    document.getElementById('total-wrap').style.display = 'block';
+
+    grid.innerHTML = '';
+    for (const row of data.stats.sort((a, b) => b.count - a.count)) {
+      const el = document.createElement('div');
+      el.className = 'stat-row';
+      el.innerHTML = `
+        <div class="stat-left">
+          <div class="stat-source">${row.source}</div>
+          <div class="stat-cat">${row.category}</div>
+        </div>
+        <div class="stat-count">
+          ${row.count}
+          <small>Chunks</small>
+        </div>
+      `;
+      grid.appendChild(el);
+    }
+  } catch (err) {
+    grid.innerHTML = `<div class="stats-empty" style="color:#e94560">Fehler: ${err.message}</div>`;
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,187 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2761
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\froman\fcharset0 Times-Bold;\f1\froman\fcharset0 Times-Roman;\f2\fmodern\fcharset0 Courier;
+}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;}
+{\*\listtable{\list\listtemplateid1\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{disc\}}{\leveltext\leveltemplateid1\'01\uc0\u8226 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid1}
+{\list\listtemplateid2\listhybrid{\listlevel\levelnfc0\levelnfcn0\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{decimal\}}{\leveltext\leveltemplateid101\'01\'00;}{\levelnumbers\'01;}\fi-360\li720\lin720 }{\listname ;}\listid2}}
+{\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}{\listoverride\listid2\listoverridecount0\ls2}}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f0\b\fs48 \cf0 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 RAG Agent \'97 Widget & WhatsApp\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f1\b0\fs24 \cf0 Channel-agnostischer RAG Bot auf Basis von Claude + Supabase pgvector + Redis. Ein Backend, zwei Kan\'e4le.\
+\pard\pardeftab720\sa298\partightenfactor0
+
+\f0\b\fs36 \cf0 Stack\
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls1\ilvl0
+\fs24 \cf0 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Runtime
+\f1\b0 : Node.js 20+ (ESM)\
+\ls1\ilvl0
+\f0\b \kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 LLM
+\f1\b0 : Anthropic Claude (Sonnet 4) + Tool Use / Agentic Loop\
+\ls1\ilvl0
+\f0\b \kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Embeddings
+\f1\b0 : OpenAI text-embedding-3-small\
+\ls1\ilvl0
+\f0\b \kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Vektordatenbank
+\f1\b0 : Supabase pgvector\
+\ls1\ilvl0
+\f0\b \kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Session State
+\f1\b0 : Redis\
+\ls1\ilvl0
+\f0\b \kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Kan\'e4le
+\f1\b0 : WebSocket (Chat Widget) + HTTP Webhook (WhatsApp Cloud API)\
+\pard\pardeftab720\sa298\partightenfactor0
+
+\f0\b\fs36 \cf0 Setup\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\fs28 \cf0 1. Dependencies installieren\
+\pard\pardeftab720\partightenfactor0
+
+\f2\b0\fs26 \cf0 npm install\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f0\b\fs28 \cf0 2. Environment Variables\
+\pard\pardeftab720\partightenfactor0
+
+\f2\b0\fs26 \cf0 cp .env.example .env\
+# .env bef\'fcllen\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f0\b\fs28 \cf0 3. Supabase Schema anlegen\
+\pard\pardeftab720\partightenfactor0
+
+\f2\b0\fs26 \cf0 npm run setup-db\
+# \uc0\u8594  Gibt SQL aus \u8594  in Supabase SQL Console ausf\'fchren\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f0\b\fs28 \cf0 4. Wissensbasis laden\
+\pard\pardeftab720\partightenfactor0
+
+\f2\b0\fs26 \cf0 # Docs als .txt oder .md in ./docs/ ablegen\
+mkdir -p docs/sales docs/coaching\
+# Dann laden:\
+npm run ingest ./docs/sales Sales\
+npm run ingest ./docs/coaching Coaching\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f0\b\fs28 \cf0 5. Server starten\
+\pard\pardeftab720\partightenfactor0
+
+\f2\b0\fs26 \cf0 npm run dev      # Development (auto-restart)\
+npm start        # Production\
+\pard\pardeftab720\sa298\partightenfactor0
+
+\f0\b\fs36 \cf0 WhatsApp Setup\
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls2\ilvl0
+\f1\b0\fs24 \cf0 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	1	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Meta Developer Console \uc0\u8594  App erstellen \u8594  WhatsApp Product hinzuf\'fcgen\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	2	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Test-Nummer konfigurieren\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	3	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Webhook URL: 
+\f2\fs26 https://your-domain.com/webhook/whatsapp
+\f1\fs24 \
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	4	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Verify Token: Wert aus 
+\f2\fs26 .env
+\f1\fs24  \uc0\u8594  
+\f2\fs26 WHATSAPP_VERIFY_TOKEN
+\f1\fs24 \
+\ls2\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	5	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Webhook Events: 
+\f2\fs26 messages
+\f1\fs24  subscriben\
+\pard\pardeftab720\sa298\partightenfactor0
+
+\f0\b\fs36 \cf0 Widget einbetten\
+\pard\pardeftab720\partightenfactor0
+
+\f2\b0\fs26 \cf0 <script>\
+  window.TH_CHAT_CONFIG = \{\
+    wsUrl: 'wss://your-domain.com/chat',\
+    agentName: 'TalkingHEADS Assistent'\
+  \};\
+</script>\
+<script src="https://your-cdn.com/widget/index.html"></script>\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f1\fs24 \cf0 Oder einfach 
+\f2\fs26 widget/index.html
+\f1\fs24  als statische Datei serven und das 
+\f2\fs26 <script>
+\f1\fs24 -Block am Ende herauskopieren.\
+\pard\pardeftab720\sa298\partightenfactor0
+
+\f0\b\fs36 \cf0 Architektur\
+\pard\pardeftab720\partightenfactor0
+
+\f2\b0\fs26 \cf0 Eingehende Nachricht\
+       \uc0\u9474 \
+       \uc0\u9500 \u9472 \u9472  WebSocket (/chat)      \u8594  Widget\
+       \uc0\u9492 \u9472 \u9472  HTTP POST (/webhook)   \u8594  WhatsApp\
+              \uc0\u9474 \
+              \uc0\u9660 \
+    handleMessage() [core/agentHandler.js]\
+              \uc0\u9474 \
+       \uc0\u9484 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9524 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9488 \
+       \uc0\u9660              \u9660 \
+  Redis (History)  Agentic Loop\
+                      \uc0\u9474 \
+               Tool: search_knowledge_base\
+                      \uc0\u9474 \
+               Supabase match_chunks RPC\
+                      \uc0\u9474 \
+               Claude generiert Antwort\
+                      \uc0\u9474 \
+              zur\'fcck an Kanal\
+\pard\pardeftab720\sa298\partightenfactor0
+
+\f0\b\fs36 \cf0 Eigene Tools hinzuf\'fcgen\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f1\b0\fs24 \cf0 In 
+\f2\fs26 core/agentHandler.js
+\f1\fs24  \uc0\u8594  
+\f2\fs26 TOOLS
+\f1\fs24  Array erweitern:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 \{\
+  name: "book_appointment",\
+  description: "Bucht einen Termin f\'fcr den User",\
+  input_schema: \{\
+    type: "object",\
+    properties: \{\
+      date: \{ type: "string", description: "Datum im Format YYYY-MM-DD" \},\
+      time: \{ type: "string", description: "Uhrzeit HH:MM" \}\
+    \},\
+    required: ["date", "time"]\
+  \}\
+\}\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f1\fs24 \cf0 Dann in 
+\f2\fs26 executeTool()
+\f1\fs24 :\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 case "book_appointment": \{\
+  // Google Calendar API Call\
+  return `Termin gebucht f\'fcr $\{toolInput.date\} um $\{toolInput.time\}`;\
+\}\
+}
