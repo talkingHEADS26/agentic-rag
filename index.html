@@ -9,21 +9,23 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --th-primary: #1a1a2e;
-    --th-accent: #e94560;
-    --th-accent-dim: rgba(233,69,96,0.12);
-    --th-bg: #ffffff;
-    --th-surface: #f7f7f9;
-    --th-border: #e8e8ef;
-    --th-text: #1a1a2e;
-    --th-muted: #8888a0;
-    --th-radius: 16px;
-    --th-shadow: 0 24px 64px rgba(26,26,46,0.18);
+    --th-primary:     #0E51A0;
+    --th-primary-dk:  #0a3d7a;
+    --th-accent:      #EA9413;
+    --th-accent-dk:   #c97d0e;
+    --th-accent-dim:  rgba(234,148,19,0.12);
+    --th-bg:          #ffffff;
+    --th-surface:     #f4f7fc;
+    --th-border:      #dde5f0;
+    --th-text:        #0d1f3c;
+    --th-muted:       #7a90b0;
+    --th-radius:      18px;
+    --th-shadow:      0 20px 60px rgba(14,81,160,0.18), 0 4px 16px rgba(14,81,160,0.10);
   }
 
   body {
-    font-family: 'DM Sans', system-ui, sans-serif;
-    background: #f0f0f5;
+    font-family: 'Roboto', system-ui, sans-serif;
+    background: linear-gradient(135deg, #eef3fb 0%, #f5f0e8 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -37,32 +39,51 @@
     bottom: 28px;
     right: 28px;
     z-index: 9999;
-    font-family: 'DM Sans', system-ui, sans-serif;
+    font-family: 'Roboto', system-ui, sans-serif;
   }
 
   /* ── Toggle Button ── */
   #th-toggle {
-    width: 60px;
-    height: 60px;
+    width: 62px;
+    height: 62px;
     border-radius: 50%;
-    background: var(--th-primary);
+    background: linear-gradient(135deg, var(--th-primary) 0%, #1468c8 100%);
     border: none;
     cursor: pointer;
-    box-shadow: var(--th-shadow);
+    box-shadow: 0 6px 24px rgba(14,81,160,0.40), 0 2px 8px rgba(14,81,160,0.20);
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.2s ease, background 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
     position: relative;
   }
 
-  #th-toggle:hover { transform: scale(1.08); background: #16162a; }
+  #th-toggle:hover {
+    transform: scale(1.08);
+    box-shadow: 0 10px 32px rgba(14,81,160,0.50), 0 4px 12px rgba(14,81,160,0.25);
+  }
 
   #th-toggle svg { transition: opacity 0.2s, transform 0.2s; }
   #th-toggle .icon-chat { opacity: 1; transform: scale(1); }
   #th-toggle .icon-close { opacity: 0; transform: scale(0.6); position: absolute; }
   #th-toggle.open .icon-chat { opacity: 0; transform: scale(0.6); }
   #th-toggle.open .icon-close { opacity: 1; transform: scale(1); }
+
+  /* Orange Pulse Ring */
+  #th-toggle::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 2.5px solid var(--th-accent);
+    opacity: 0;
+    animation: th-pulse-ring 2.5s ease infinite;
+  }
+  @keyframes th-pulse-ring {
+    0%   { opacity: 0; transform: scale(0.9); }
+    50%  { opacity: 0.6; }
+    100% { opacity: 0; transform: scale(1.18); }
+  }
 
   #th-unread {
     position: absolute;
@@ -75,16 +96,17 @@
     font-weight: 700;
     display: flex; align-items: center; justify-content: center;
     display: none;
+    border: 2px solid white;
   }
   #th-unread.visible { display: flex; }
 
   /* ── Chat Panel ── */
   #th-panel {
     position: absolute;
-    bottom: 72px;
+    bottom: 74px;
     right: 0;
     width: 380px;
-    height: 560px;
+    height: 570px;
     background: var(--th-bg);
     border-radius: var(--th-radius);
     box-shadow: var(--th-shadow);
@@ -94,7 +116,7 @@
     transform: scale(0.9) translateY(20px);
     opacity: 0;
     pointer-events: none;
-    transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s ease;
+    transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s ease;
     transform-origin: bottom right;
   }
 
@@ -106,32 +128,53 @@
 
   /* ── Header ── */
   #th-header {
-    background: var(--th-primary);
+    background: linear-gradient(135deg, var(--th-primary) 0%, #1468c8 100%);
     padding: 18px 20px;
     display: flex;
     align-items: center;
     gap: 12px;
     flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Dekorativer Kreis oben rechts */
+  #th-header::after {
+    content: '';
+    position: absolute;
+    top: -20px; right: -20px;
+    width: 90px; height: 90px;
+    border-radius: 50%;
+    background: rgba(234,148,19,0.15);
+    pointer-events: none;
   }
 
   .th-avatar {
-    width: 40px; height: 40px;
+    width: 42px; height: 42px;
     border-radius: 50%;
     background: var(--th-accent);
     display: flex; align-items: center; justify-content: center;
-    font-weight: 700; font-size: 16px; color: white;
+    font-family: 'Rubik', sans-serif;
+    font-weight: 700; font-size: 15px; color: white;
     flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(234,148,19,0.40);
+    letter-spacing: -0.5px;
   }
 
   .th-header-info { flex: 1; }
-  .th-header-name { color: white; font-weight: 600; font-size: 15px; }
+  .th-header-name {
+    color: white;
+    font-family: 'Rubik', sans-serif;
+    font-weight: 600; font-size: 15px;
+  }
   .th-header-status {
-    color: rgba(255,255,255,0.55);
+    color: rgba(255,255,255,0.60);
     font-size: 12px;
-    display: flex; align-items: center; gap: 5px; margin-top: 2px;
+    display: flex; align-items: center; gap: 5px; margin-top: 3px;
   }
   .th-status-dot {
     width: 7px; height: 7px; border-radius: 50%; background: #4ade80;
+    box-shadow: 0 0 6px #4ade80;
   }
 
   /* ── Messages ── */
@@ -143,6 +186,7 @@
     flex-direction: column;
     gap: 12px;
     scroll-behavior: smooth;
+    background: var(--th-bg);
   }
 
   #th-messages::-webkit-scrollbar { width: 4px; }
@@ -153,7 +197,7 @@
     display: flex;
     flex-direction: column;
     max-width: 82%;
-    animation: th-pop 0.2s ease;
+    animation: th-pop 0.22s ease;
   }
 
   @keyframes th-pop {
@@ -166,9 +210,9 @@
 
   .th-bubble {
     padding: 11px 15px;
-    border-radius: 14px;
+    border-radius: 16px;
     font-size: 14px;
-    line-height: 1.5;
+    line-height: 1.55;
     word-break: break-word;
   }
 
@@ -176,12 +220,14 @@
     background: var(--th-surface);
     color: var(--th-text);
     border-bottom-left-radius: 4px;
+    border: 1px solid var(--th-border);
   }
 
   .th-msg.user .th-bubble {
-    background: var(--th-primary);
+    background: linear-gradient(135deg, var(--th-primary) 0%, #1468c8 100%);
     color: white;
     border-bottom-right-radius: 4px;
+    box-shadow: 0 3px 12px rgba(14,81,160,0.25);
   }
 
   .th-time {
@@ -196,16 +242,17 @@
   #th-typing {
     display: none;
     align-self: flex-start;
-    padding: 10px 14px;
+    padding: 11px 15px;
     background: var(--th-surface);
-    border-radius: 14px;
+    border-radius: 16px;
     border-bottom-left-radius: 4px;
+    border: 1px solid var(--th-border);
   }
   #th-typing.visible { display: flex; gap: 5px; align-items: center; }
 
   .th-dot {
     width: 7px; height: 7px; border-radius: 50%;
-    background: var(--th-muted);
+    background: var(--th-accent);
     animation: th-bounce 1.2s ease infinite;
   }
   .th-dot:nth-child(2) { animation-delay: 0.2s; }
@@ -218,7 +265,7 @@
 
   /* ── Input Area ── */
   #th-input-area {
-    padding: 14px 16px;
+    padding: 12px 14px;
     border-top: 1px solid var(--th-border);
     display: flex;
     gap: 10px;
@@ -230,37 +277,46 @@
   #th-input {
     flex: 1;
     border: 1.5px solid var(--th-border);
-    border-radius: 12px;
-    padding: 10px 14px;
+    border-radius: 100px;
+    padding: 10px 16px;
     font-size: 14px;
-    font-family: inherit;
+    font-family: 'Roboto', system-ui, sans-serif;
     color: var(--th-text);
     resize: none;
     max-height: 100px;
     outline: none;
-    transition: border-color 0.15s;
+    transition: border-color 0.15s, box-shadow 0.15s;
     background: var(--th-surface);
     line-height: 1.4;
   }
 
-  #th-input:focus { border-color: var(--th-accent); background: white; }
+  #th-input:focus {
+    border-color: var(--th-accent);
+    box-shadow: 0 0 0 3px var(--th-accent-dim);
+    background: white;
+  }
   #th-input::placeholder { color: var(--th-muted); }
 
   #th-send {
-    width: 40px; height: 40px;
-    border-radius: 10px;
+    width: 42px; height: 42px;
+    border-radius: 50%;
     background: var(--th-accent);
     border: none;
     cursor: pointer;
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
-    transition: background 0.15s, transform 0.1s;
+    transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+    box-shadow: 0 3px 10px rgba(234,148,19,0.35);
   }
-  #th-send:hover { background: #c73652; }
+  #th-send:hover {
+    background: var(--th-accent-dk);
+    box-shadow: 0 5px 16px rgba(234,148,19,0.50);
+    transform: scale(1.05);
+  }
   #th-send:active { transform: scale(0.93); }
-  #th-send:disabled { background: var(--th-border); cursor: not-allowed; }
+  #th-send:disabled { background: var(--th-border); box-shadow: none; cursor: not-allowed; }
 
-  /* ── Powered by ── */
+  /* ── Footer ── */
   #th-footer {
     text-align: center;
     padding: 6px;
@@ -268,6 +324,7 @@
     color: var(--th-muted);
     border-top: 1px solid var(--th-border);
     flex-shrink: 0;
+    background: white;
   }
 
   /* ── Preview Demo Box ── */
@@ -277,14 +334,14 @@
     padding: 40px;
     max-width: 500px;
     width: 100%;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 24px rgba(14,81,160,0.10);
     text-align: center;
   }
-  .demo-wrapper h2 { font-size: 20px; color: #1a1a2e; margin-bottom: 8px; }
-  .demo-wrapper p { color: #8888a0; font-size: 14px; }
+  .demo-wrapper h2 { font-family: 'Rubik', sans-serif; font-size: 20px; color: var(--th-primary); margin-bottom: 8px; }
+  .demo-wrapper p { color: var(--th-muted); font-size: 14px; }
   .embed-code {
-    background: #1a1a2e;
-    color: #4ade80;
+    background: #0d1f3c;
+    color: #EA9413;
     padding: 16px;
     border-radius: 10px;
     font-family: monospace;
@@ -293,9 +350,15 @@
     margin-top: 20px;
     white-space: pre;
   }
+
+  /* ── Mobile ── */
+  @media (max-width: 450px) {
+    #th-panel { width: calc(100vw - 20px); right: -10px; }
+    #th-widget { bottom: 16px; right: 16px; }
+  }
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
 
