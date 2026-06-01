@@ -334,6 +334,25 @@ PORT=3000
 
 ## 10. Noch ausstehend / Nächste Schritte
 
+### Domain-Transfer: United Domains → Hetzner
+**Status:** Transfer angeschoben (Stand: 01.06.2026)
+
+Aktuell: Domains bei **United Domains** registriert, DNS bereits bei **Hetzner** verwaltet (funktioniert schon für `diebestenberatungsagenturen.de`). Transfer übergibt auch die Registrierung zu Hetzner — übersichtlicher, günstigere Verlängerung, bessere API.
+
+- [ ] **Auth-Code (EPP-Key)** bei United Domains anfordern (Kundenkonto → Domain → Transfer)
+- [ ] **Transfer-Sperre aufheben** bei United Domains (falls aktiv)
+- [ ] **Auth-Code bei Hetzner eingeben** — Hetzner Robot → Domains → Domain hinzufügen
+- [ ] **Bestätigungs-E-Mail** vom bisherigen Registrar bestätigen (kommt an Admin-Kontakt)
+- [ ] **Transfer-Status prüfen** — dauert typisch 5–7 Werktage
+- [ ] Nach Abschluss: DNS-Einträge in Hetzner DNS prüfen (A-Records für `chat` und `n8n` müssen erhalten bleiben)
+- [ ] **AAAA-Record für `chat` darf NICHT gesetzt werden** (führt zu SSL-Fehler via IPv6 → Strato `*.your-server.de` Wildcard-Cert)
+- [ ] SMTP-Zugangsdaten in `.env` aktualisieren falls E-Mail-Hosting ebenfalls umzieht
+
+> **Wichtig:** Während des Transfers bleibt die Domain voll funktionsfähig — DNS läuft weiter über Hetzner. Keine Downtime zu erwarten.
+
+### Offene Punkte
+
+- [ ] **SMTP konfigurieren** — `.env` auf Server: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` eintragen → Bestätigungs-E-Mail an Kunden nach Buchung aktivieren
 - [ ] **WhatsApp Webhook** — Meta Developer Console: Webhook-URL `https://chat.diebestenberatungsagenturen.de/webhook/whatsapp` eintragen
 - [ ] **Widget-Embed** — `index.html` Widget-Code auf talkingheads.business / andere Domains einbetten (CORS `WIDGET_ORIGIN` in `.env` setzen)
 - [ ] **Wissensdatenbank erweitern** — Weitere Dokumente über Admin-Interface hochladen
