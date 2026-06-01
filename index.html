@@ -462,9 +462,6 @@
     ws.onopen = () => {
       console.log('[TH Chat] Connected');
       clearTimeout(reconnectTimer);
-      if (messages.children.length === 0) {
-        addBotMessage('Hallo! Ich bin der digitale Assistent von talkingHEADS.\n\nIch beantworte gerne Deine Fragen zu unseren Angeboten, Programmen und Preisen — oder ich zeige Dir freie Termine für ein kostenloses Erstgespräch.\n\nWie kann ich Dir behilflich sein?');
-      }
     };
 
     ws.onmessage = (event) => {
@@ -582,6 +579,7 @@
   sendBtn.addEventListener('click', sendMessage);
 
   // ── Toggle ──
+  let greeted = false;
   toggle.addEventListener('click', () => {
     isOpen = !isOpen;
     panel.classList.toggle('open', isOpen);
@@ -589,6 +587,10 @@
     if (isOpen) {
       clearUnread();
       input.focus();
+      if (!greeted) {
+        greeted = true;
+        addBotMessage('Hallo! Ich bin der digitale Assistent von talkingHEADS.\n\nIch beantworte gerne Deine Fragen zu unseren Angeboten, Programmen und Preisen — oder ich zeige Dir freie Termine für ein kostenloses Erstgespräch.\n\nWie kann ich Dir behilflich sein?');
+      }
     }
   });
 
