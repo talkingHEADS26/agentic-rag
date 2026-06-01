@@ -153,7 +153,20 @@ Das Widget ist bereits unter `/` erreichbar. Zum Einbetten auf einer externen Se
 
 ---
 
-## Deployment (Strato / beliebiger Linux-Server)
+## Hosting-Empfehlung
+
+Der Bot braucht einen echten Server (Node.js, WebSockets, Redis) — kein Shared Hosting, kein Baukasten.
+
+**Empfehlung: [Hetzner Cloud](https://hetzner.com/cloud) CX22**
+- ~4€/Monat, Ubuntu 24.04, Docker vorinstallierbar
+- Einfaches DNS-Management inklusive
+- Gleicher Setup-Prozess wie unten beschrieben
+
+Das Widget kann danach auf **jeder beliebigen Website** eingebettet werden (WordPress, IONOS, Baukasten, etc.) — der Bot läuft auf Hetzner, das Widget ist nur ein HTML-Schnipsel auf der Kundenseite.
+
+---
+
+## Deployment (Linux-Server mit Docker)
 
 ### Caddyfile
 
