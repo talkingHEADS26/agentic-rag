@@ -7,6 +7,7 @@ import { createServer } from "http";
 import crypto from "crypto";
 import path from "path";
 import { fileURLToPath } from "url";
+import fs from "fs";
 import { handleMessage } from "./agentHandler.js";
 import { ingestText, getChunkStats, deleteAllChunks } from "./ingestKnowledge.js";
 
@@ -39,9 +40,23 @@ function adminAuth(req, res, next) {
   next();
 }
 
-// Chat Widget (Test-Seite)
+// Chat Widget — Config aus .env injizieren
+const WIDGET_CONFIG = JSON.stringify({
+  companyName:  process.env.COMPANY_NAME  || "Assistent",
+  agentName:    process.env.AGENT_NAME    || "KI-Assistent",
+  primaryColor: process.env.WIDGET_PRIMARY_COLOR || "#0E51A0",
+  accentColor:  process.env.WIDGET_ACCENT_COLOR  || "#EA9413",
+  welcomeMsg:   process.env.WIDGET_WELCOME_MSG   || null,
+});
+
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
+  const html = fs.readFileSync(path.join(__dirname, "index.html"), "utf-8");
+  const injected = html.replace(
+    "/* __ENV_CONFIG__ */",
+    `window.TH_ENV_CONFIG = ${WIDGET_CONFIG};`
+  );
+  res.setHeader("Content-Type", "text/html");
+  res.send(injected);
 });
 
 // Upload-Interface HTML

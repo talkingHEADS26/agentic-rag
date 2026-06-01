@@ -32,9 +32,9 @@ function buildConfirmationHtml({ name, slotLabel, calendarLink }) {
           <tr>
             <td style="background:linear-gradient(135deg,#0E51A0 0%,#1a6bc9 100%);padding:40px 48px 36px;text-align:center;position:relative;">
               <div style="font-family:'Rubik',Arial,sans-serif;font-size:28px;font-weight:700;color:#ffffff;letter-spacing:-0.5px;">
-                talking<span style="color:#EA9413;">HEADS</span>
+                ${process.env.COMPANY_NAME || "talkingHEADS"}
               </div>
-              <div style="margin-top:8px;font-size:13px;color:rgba(255,255,255,0.75);letter-spacing:1px;text-transform:uppercase;">Digital Marketing</div>
+              <div style="margin-top:8px;font-size:13px;color:rgba(255,255,255,0.75);letter-spacing:1px;text-transform:uppercase;">${process.env.COMPANY_TAGLINE || ""}</div>
               <div style="position:absolute;top:-20px;right:-20px;width:120px;height:120px;background:rgba(234,148,19,0.15);border-radius:50%;"></div>
             </td>
           </tr>
@@ -55,7 +55,7 @@ function buildConfirmationHtml({ name, slotLabel, calendarLink }) {
                 Hey ${name},<br>wir freuen uns auf Dich!
               </h1>
               <p style="margin:16px 0 0;font-size:16px;color:#4a5568;line-height:1.6;">
-                Dein kostenloses Erstgespräch mit talkingHEADS ist gebucht.<br>
+                Dein kostenloses Erstgespräch mit ${process.env.COMPANY_NAME || "talkingHEADS"} ist gebucht.<br>
                 Hier sind Deine Termindaten auf einen Blick:
               </p>
             </td>
@@ -124,11 +124,9 @@ function buildConfirmationHtml({ name, slotLabel, calendarLink }) {
             <td style="padding:28px 48px;text-align:center;">
               <p style="margin:0;font-size:13px;color:#a0aec0;line-height:1.6;">
                 Fragen? Antworte einfach auf diese E-Mail oder schreib uns direkt.<br>
-                <strong style="color:#0E51A0;">talkingHEADS Digital Marketing</strong>
+                <strong style="color:#0E51A0;">${process.env.COMPANY_NAME || "talkingHEADS"} Digital Marketing</strong>
               </p>
-              <p style="margin:12px 0 0;font-size:11px;color:#cbd5e0;">
-                talkingheads.business &nbsp;·&nbsp; talkingheads.consulting &nbsp;·&nbsp; talkingheads.academy
-              </p>
+              ${process.env.COMPANY_WEBSITE ? `<p style="margin:12px 0 0;font-size:11px;color:#cbd5e0;">${process.env.COMPANY_WEBSITE}</p>` : ""}
             </td>
           </tr>
 
@@ -154,7 +152,7 @@ export async function sendBookingConfirmation({ name, email, slotLabel, calendar
   }
 
   await transporter.sendMail({
-    from: `"talkingHEADS Assistent" <${process.env.SMTP_USER}>`,
+    from: `"${process.env.COMPANY_NAME || "talkingHEADS"} Assistent" <${process.env.SMTP_USER}>`,
     to:   `"${name}" <${email}>`,
     subject: `✅ Dein Termin: ${slotLabel}`,
     html:    buildConfirmationHtml({ name, slotLabel, calendarLink }),

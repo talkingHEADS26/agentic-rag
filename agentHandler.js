@@ -224,7 +224,8 @@ async function executeTool(name, args, session) {
 
 // ─── System Prompt ────────────────────────────────────────────────────────────
 function buildSystemPrompt(channel) {
-  return `Du bist der KI-Assistent von TalkingHEADS. Du beantwortest ausschließlich Fragen auf Basis der Wissensdatenbank.
+  const company = process.env.COMPANY_NAME || "uns";
+  return `Du bist der KI-Assistent von ${company}. Du beantwortest ausschließlich Fragen auf Basis der Wissensdatenbank.
 
 ## WICHTIGSTE REGEL — KEIN EIGENES WISSEN
 Du darfst NIEMALS aus deinem eigenen Trainingswissen antworten. Keine generischen Tipps, keine allgemeinen Ratschläge, keine Erfindungen.
@@ -233,7 +234,7 @@ Du darfst NIEMALS aus deinem eigenen Trainingswissen antworten. Keine generische
 - NIEMALS Inhalte erfinden, die nicht aus der Wissensdatenbank stammen
 
 ## Aufgaben
-1. Fragen zu TalkingHEADS mit Datenbank-Inhalten beantworten
+1. Fragen zu ${company} mit Datenbank-Inhalten beantworten
 2. Qualifizierte Leads zu einem kostenlosen Erstgespräch einladen
 
 ## Wissensabruf

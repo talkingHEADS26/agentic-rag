@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>talkingHEADS Chat Widget</title>
+<title>Chat Widget</title>
 <style>
   /* ── Reset & Base ── */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -364,15 +364,8 @@
 
 <!-- Demo Page Content -->
 <div class="demo-wrapper">
-  <h2>talkingHEADS Chat Widget</h2>
+  <h2 id="demo-title">Chat Widget</h2>
   <p>Klick unten rechts auf den Button →</p>
-  <div class="embed-code">&lt;script&gt;
-  window.TH_CHAT_CONFIG = {
-    wsUrl: 'wss://your-server.com/chat',
-    agentName: 'talkingHEADS Assistent'
-  };
-&lt;/script&gt;
-&lt;script src="https://your-cdn.com/th-widget.js"&gt;&lt;/script&gt;</div>
 </div>
 
 <!-- ══ WIDGET ══════════════════════════════════════════ -->
@@ -380,9 +373,9 @@
 
   <div id="th-panel">
     <div id="th-header">
-      <div class="th-avatar">TH</div>
+      <div class="th-avatar" id="th-avatar">KI</div>
       <div class="th-header-info">
-        <div class="th-header-name">talkingHEADS Assistent</div>
+        <div class="th-header-name" id="th-agent-name">Assistent</div>
         <div class="th-header-status">
           <div class="th-status-dot"></div>
           Online · Antwortet sofort
@@ -408,7 +401,7 @@
       </button>
     </div>
 
-    <div id="th-footer">Powered by talkingHEADS AI</div>
+    <div id="th-footer">Powered by <span id="th-footer-name">KI</span>-Assistent</div>
   </div>
 
   <button id="th-toggle" title="Chat öffnen">
@@ -424,13 +417,29 @@
 </div>
 
 <script>
-// ── talkingHEADS Chat Widget ──────────────────────────────────────────────────
+/* __ENV_CONFIG__ */
+</script>
+<script>
+// ── Chat Widget ───────────────────────────────────────────────────────────────
 
 (function() {
+  const ENV    = window.TH_ENV_CONFIG || {};
   const CONFIG = window.TH_CHAT_CONFIG || {
-    wsUrl: (location.protocol === 'https:' ? 'wss' : 'ws') + '://' + location.host + '/chat',
-    agentName: 'talkingHEADS Assistent'
+    wsUrl:       (location.protocol === 'https:' ? 'wss' : 'ws') + '://' + location.host + '/chat',
+    companyName: ENV.companyName  || 'Assistent',
+    agentName:   ENV.agentName    || 'KI-Assistent',
+    welcomeMsg:  ENV.welcomeMsg   || null,
   };
+
+  // Texte aus Config befüllen
+  const agentNameEl  = document.getElementById('th-agent-name');
+  const avatarEl     = document.getElementById('th-avatar');
+  const footerNameEl = document.getElementById('th-footer-name');
+  const demoTitleEl  = document.getElementById('demo-title');
+  if (agentNameEl)  agentNameEl.textContent  = CONFIG.agentName;
+  if (avatarEl)     avatarEl.textContent      = CONFIG.companyName.substring(0,2).toUpperCase();
+  if (footerNameEl) footerNameEl.textContent  = CONFIG.companyName;
+  if (demoTitleEl)  demoTitleEl.textContent   = CONFIG.companyName + ' Chat Widget';
 
   // ── State ──
   let ws = null;
@@ -589,7 +598,9 @@
       input.focus();
       if (!greeted) {
         greeted = true;
-        addBotMessage('Hallo! Ich bin der digitale Assistent von talkingHEADS.\n\nIch beantworte gerne Deine Fragen zu unseren Angeboten und Programmen — oder ich zeige Dir freie Termine für ein kostenloses Erstgespräch.\n\nWie kann ich Dir behilflich sein?');
+        const welcome = CONFIG.welcomeMsg ||
+          `Hallo! Ich bin der digitale Assistent von ${CONFIG.companyName}.\n\nIch beantworte gerne Deine Fragen zu unseren Angeboten und Programmen — oder ich zeige Dir freie Termine für ein kostenloses Erstgespräch.\n\nWie kann ich Dir behilflich sein?`;
+        addBotMessage(welcome);
       }
     }
   });
