@@ -365,7 +365,7 @@
 
 (function() {
   const CONFIG = window.TH_CHAT_CONFIG || {
-    wsUrl: 'ws://localhost:3000/chat',  // ← Deine Server-URL
+    wsUrl: (location.protocol === 'https:' ? 'wss' : 'ws') + '://' + location.host + '/chat',
     agentName: 'TalkingHEADS Assistent'
   };
 
