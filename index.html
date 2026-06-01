@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TalkingHEADS Chat Widget</title>
+<title>talkingHEADS Chat Widget</title>
 <style>
   /* ── Reset & Base ── */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -364,12 +364,12 @@
 
 <!-- Demo Page Content -->
 <div class="demo-wrapper">
-  <h2>TalkingHEADS Chat Widget</h2>
+  <h2>talkingHEADS Chat Widget</h2>
   <p>Klick unten rechts auf den Button →</p>
   <div class="embed-code">&lt;script&gt;
   window.TH_CHAT_CONFIG = {
     wsUrl: 'wss://your-server.com/chat',
-    agentName: 'TalkingHEADS Assistent'
+    agentName: 'talkingHEADS Assistent'
   };
 &lt;/script&gt;
 &lt;script src="https://your-cdn.com/th-widget.js"&gt;&lt;/script&gt;</div>
@@ -382,7 +382,7 @@
     <div id="th-header">
       <div class="th-avatar">TH</div>
       <div class="th-header-info">
-        <div class="th-header-name">TalkingHEADS Assistent</div>
+        <div class="th-header-name">talkingHEADS Assistent</div>
         <div class="th-header-status">
           <div class="th-status-dot"></div>
           Online · Antwortet sofort
@@ -408,7 +408,7 @@
       </button>
     </div>
 
-    <div id="th-footer">Powered by TalkingHEADS AI</div>
+    <div id="th-footer">Powered by talkingHEADS AI</div>
   </div>
 
   <button id="th-toggle" title="Chat öffnen">
@@ -424,12 +424,12 @@
 </div>
 
 <script>
-// ── TalkingHEADS Chat Widget ──────────────────────────────────────────────────
+// ── talkingHEADS Chat Widget ──────────────────────────────────────────────────
 
 (function() {
   const CONFIG = window.TH_CHAT_CONFIG || {
     wsUrl: (location.protocol === 'https:' ? 'wss' : 'ws') + '://' + location.host + '/chat',
-    agentName: 'TalkingHEADS Assistent'
+    agentName: 'talkingHEADS Assistent'
   };
 
   // ── State ──
