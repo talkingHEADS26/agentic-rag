@@ -13,6 +13,7 @@
     "express": "^4.21.0",
     "firecrawl-cli": "^1.18.5",
     "googleapis": "^144.0.0",
+    "nodemailer": "^8.0.10",
     "openai": "^6.39.1",
     "redis": "^4.7.0",
     "ws": "^8.18.0"

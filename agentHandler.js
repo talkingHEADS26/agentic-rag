@@ -4,6 +4,7 @@ import OpenAI from "openai";
 import { createClient } from "@supabase/supabase-js";
 import { createClient as createRedisClient } from "redis";
 import { google } from "googleapis";
+import { sendBookingConfirmation } from "./emailService.js";
 
 const openai   = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
@@ -446,6 +447,15 @@ async function handleBookingStep(session, sessionId, message, channel) {
         session.bookingState = "confirmed";
         session.bookedEvent  = event;
         await saveSession(sessionId, session);
+
+        // Bestätigungs-E-Mail an Kunden
+        sendBookingConfirmation({
+          name,
+          email,
+          slotLabel: slot.label,
+          calendarLink: event.htmlLink,
+        }).catch(err => console.error("[Email] Fehler:", err.message));
+
         return wa
           ? `✅ Termin gebucht: ${slot.label}\nBestätigung geht an ${email}. Bis dann!`
           : `✅ **Dein Termin ist gebucht!**\n\n📅 ${slot.label}\n📧 Bestätigung geht an ${email}\n\nWir freuen uns auf das Gespräch!`;
