@@ -152,13 +152,16 @@
   .th-avatar {
     width: 42px; height: 42px;
     border-radius: 50%;
-    background: var(--th-accent);
+    background: white;
     display: flex; align-items: center; justify-content: center;
-    font-family: 'Rubik', sans-serif;
-    font-weight: 700; font-size: 15px; color: white;
     flex-shrink: 0;
-    box-shadow: 0 2px 8px rgba(234,148,19,0.40);
-    letter-spacing: -0.5px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.20);
+    overflow: hidden;
+  }
+  .th-avatar img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
   }
 
   .th-header-info { flex: 1; }
@@ -373,7 +376,7 @@
 
   <div id="th-panel">
     <div id="th-header">
-      <div class="th-avatar" id="th-avatar">KI</div>
+      <div class="th-avatar" id="th-avatar"><img src="/th-head.png" alt="Avatar"></div>
       <div class="th-header-info">
         <div class="th-header-name" id="th-agent-name">Assistent</div>
         <div class="th-header-status">
@@ -437,7 +440,7 @@
   const footerNameEl = document.getElementById('th-footer-name');
   const demoTitleEl  = document.getElementById('demo-title');
   if (agentNameEl)  agentNameEl.textContent  = CONFIG.agentName;
-  if (avatarEl)     avatarEl.textContent      = CONFIG.companyName.substring(0,2).toUpperCase();
+  // Avatar: Bild via th-head.png (statisch im Root, kein JS nötig)
   if (footerNameEl) footerNameEl.textContent  = CONFIG.companyName;
   if (demoTitleEl)  demoTitleEl.textContent   = CONFIG.companyName + ' Chat Widget';
 
