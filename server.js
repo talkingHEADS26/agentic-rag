@@ -16,6 +16,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 app.use(express.json());
 
+// Statische Dateien (Bilder etc.)
+app.use(express.static(__dirname));
+
 // CORS für das Widget
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", process.env.WIDGET_ORIGIN || "*");
